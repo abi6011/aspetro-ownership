@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Transfer Ownership - ASPT</title>
+</head>
+<body>
+  <h2>انتقال مالکیت توکن ASPT</h2>
+  <button onclick="transferOwnership()">انتقال مالکیت</button>
+  <p id="status"></p>
+
+  <script>
+    const CONTRACT_ADDRESS = "0x4774C7bf847a37129A68E5297838fd4AB03C79A5";
+    const ABI = [{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"}];
+
+    async function transferOwnership() {
+      const statusEl = document.getElementById('status');
+      if (typeof window.ethereum === 'undefined') {
+        statusEl.innerText = "MetaMask پیدا نشد!";
+        return;
+      }
+
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+
+      try {
+        const tx = await contract.transferOwnership("0xE7083257524d76693D8E50668f02f067A42D93aa");
+        statusEl.innerText = "در حال انتقال مالکیت... لطفاً منتظر بمانید";
+        await tx.wait();
+        statusEl.innerText = "✅ انتقال مالکیت با موفقیت انجام شد.";
+      } catch (err) {
+        console.error(err);
+        statusEl.innerText = "❌ خطا در انتقال مالکیت";
+      }
+    }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.min.js"></script>
+</body>
+</html>
